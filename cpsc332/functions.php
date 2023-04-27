@@ -60,4 +60,18 @@ function splitName($fullName) {
     $lastName = !empty($names) ? end($names) : "";
     return array($firstName, $lastName);
 }
+function random_num($length)
+{
+    $text = "";
+    if($length < 3)
+    {
+        $length =3;
+    }
+    $len = rand(4,$length);
+    for($i=0; $i < $len; $i++)
+    {
+        $text.= rand(0,9);
+    }
+    return $text;
+}
 ?>

@@ -15,20 +15,20 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
         $validInfor = false;
     }
     
-    if($validInfor){
+    if($validInfor){ // if info entered is not empty 
         $query = "select * from users where user_name = '$user_name' limit 1";
         $result = mysqli_query($con, $query);
-        if($result && mysqli_num_rows($result) > 0){
-        $user_data = mysqli_fetch_assoc($result);
+        if($result && mysqli_num_rows($result) > 0){ //check if user name is in db 
+        $user_data = mysqli_fetch_assoc($result);    //give userdata users db data
 
-        if($user_data['password'] == $password){   
+        if($user_data['password'] == $password){   // check if password matches 
             $_SESSION['id'] = $user_data['id'];
            $_SESSION['email'] = $user_data['email'];
-           header("Location: index.php");
+           header("Location: index.php"); // redirect 
            die;
         }
         else{
-            echo '<script>window.confirm("Incorrect Username or Password")</script>';
+            echo '<script>window.confirm("Incorrect Username or Password")</script>'; // wrong pass word error 
 
         }
     }
