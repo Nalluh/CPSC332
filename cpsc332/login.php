@@ -39,8 +39,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST")
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="allpages.css">
     <link rel="stylesheet" href="login_page.css">
+    <link rel="stylesheet" href="allpages.css">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

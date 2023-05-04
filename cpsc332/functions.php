@@ -12,6 +12,9 @@ function check_login($con) // keeps user login valid until log out
         return $user_data;
     }
    }
+   else{
+    return false;
+   }
    header("Location: login.php");
    die;
 }
