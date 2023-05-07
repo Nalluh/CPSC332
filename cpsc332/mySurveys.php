@@ -16,10 +16,16 @@ $sID;
 
 echo "<div class='header'>";
 echo "<ul>";
+if(!empty($user_data["FName"])){
 echo "<li>Welcome,   ".$user_data["FName"]."</li>";
 echo "<li><a href='Index.php'> Create Survey</a></li>";
 echo "<li><a href='mySurveys.php'> My Surveys</a></li>";
 echo "<li><a href='logout.php'>Logout</a></li>";
+}else{
+echo "<li><a href='Index.php'> Create Survey</a></li>";
+echo "<li><a href='login.php'> Login</a></li>";
+
+}
 echo "</ul>";
 echo "</div>";
 
@@ -31,6 +37,8 @@ echo "</div>";
 echo "<div class='mySurveys'>";
 echo "<div class='Surveys'>";
 
+
+// get info from db so we can display all surveys made by a users id
 $query = "select surveyID, surveyName, TimeStamp, status from survey where id = {$user_data['id']} order by TimeStamp DESC";
 $result = mysqli_query($con, $query);
 
@@ -55,7 +63,7 @@ $counter++;
 
 }
 
-if($counter == 15){
+if($counter > 15){
 echo ($counter-15)." surveys hidden";
 }
 echo "</div>"; // Surveys
@@ -74,12 +82,12 @@ echo "</div>"; // mySurveysName
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if(empty($_POST['editTextBox']))    {
-    $_POST['editTextBox'] = "";
+    $_POST['editTextBox'] = NULL;
     if(empty($_POST['delete'])){
-        $_POST['delete'] = "";// assign a value or it will give error
+        $_POST['delete'] = NULL;// assign a value or it will give error
     }
     if(empty($_POST['close'])){
-        $_POST['close'] = ""; // assign a value or it will give error
+        $_POST['close'] = NULL; // assign a value or it will give error
     }
     echo "<div class='editS'>";
     if($_POST['delete'] == "on"){ // delete survey 
@@ -91,8 +99,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $query = "update survey set status = 'Closed' where surveyID = '{$_POST['survey']}' ";
         mysqli_query($con,$query);
      
+    }
+    if(empty($_POST['responses'])){
+        $_POST['responses'] = NULL; // assign a value or it will give error
+    }
+    //if user wants to look at all responses
+    if($_POST['responses'] == "on"){
+    $id = $_POST['survey'];
+    $url = "ViewResponse.php?id=$id"; // set the link to page to view 
+    $query = "select * from Responses where surveyID = '$id'";
+    $result = mysqli_query($con, $query);
+    $responses = mysqli_fetch_assoc($result);
+    $query = "SELECT COUNT(DISTINCT RID) FROM Responses where surveyID = '$id'";
+    $result2 = mysqli_query($con, $query);
+     $totalR = mysqli_fetch_row($result2);
+     echo "Total amount of responses: ".$totalR[0]."<br>"; // display amount of responses
+     echo "<a href =$url >Click here to view them</a>";
 
     }
+
     echo "</div>";
     //header('Location: mySurveys.php');
    // exit();  
@@ -106,6 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo  "Edit Survey: ".$sID ;
 
         echo "<form method ='post' action =''>";
+        echo "<input type='radio' name='responses' >View survey responses<br>";
         echo "<input type='radio' name='close' >Close Survey<br>";
         echo "<input type='radio' name='delete' >Delete Survey<br>";
        echo  "<input type='hidden' name='survey' value='$sID'>";

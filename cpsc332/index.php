@@ -12,6 +12,7 @@ $user_data = check_login($con);
 $surveyid = random_num(3);
 $insertQuestionFlag = false;
 $QuestionTemplate;
+$questionNumber =1;
 echo "<div class='header'>";
 echo "<ul>";
 if(!empty($user_data["FName"])){
@@ -21,6 +22,8 @@ echo "<li><a href='mySurveys.php'> My Surveys</a></li>";
 echo "<li><a href='logout.php'>Logout</a></li>";
 }else{
 echo "<li><a href='Index.php'> Create Survey</a></li>";
+echo "<li><a href='login.php'> Login</a></li>";
+
 }
 echo "</ul>";
 echo "</div>";
@@ -151,11 +154,11 @@ if($user_info['questionType'] == 'mChoice'){
             echo "A ";
             echo "   <input type='text' name='options[$j][]' ><br>";
             echo "B  ";
-            echo "   <input type='text' name='options[$j][]' <br>";
+            echo "   <input type='text' name='options[$j][]' ><br>";
             echo "C  ";
             echo "   <input type='text' name='options[$j][]' ><br>"; // input fields  
             echo "D  ";
-            echo "   <input type='text' name='options[$j][]'><br>";
+            echo "   <input type='text' name='options[$j][]'    ><br>";
         }
         
         echo "<br><button> Submit </button>";
@@ -246,11 +249,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         foreach ($question_options as $option_text) {
         //    echo "- " . $option_text . "<br>";
             $question_op = $option_text;
-            $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op')";
+            $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`, `questionNumber`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
             mysqli_query($con,$query2); // inserts questions and answer choices 
             
         }
-    
+    $questionNumber++;
     }
 }
     else if($user_info['questionType'] == 'YesorNo'){
@@ -263,7 +266,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                      echo "<div class='container'>";
                    
                      echo "Your survey code is ".$user_info['SurveyID']."<br>";
-                     echo"</div>";        for ($i = 1; $i <=$count; $i++) {
+                     echo"</div>";   
+                          for ($i = 1; $i <=$count; $i++) {
             
             $question_text = $questions[$i];
             $question_options = $options[$i];
@@ -273,11 +277,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             foreach ($question_options as $option_text) {
               // un comment to see what code will display  echo "- " . $option_text . "<br>";
                 $question_op = $option_text;
-                $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op')";
+                $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`,`questionNumber`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
                 mysqli_query($con,$query2); // inserts questions and answer choices 
                 
             }
-        
+            $questionNumber++;
         }
     }
     else if($user_info['questionType'] == 'Essay'){
@@ -288,15 +292,16 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                      $user_info = mysqli_fetch_assoc($result);
                      echo "<div class='container'>";
                      echo "Your survey code is ".$user_info['SurveyID']."<br>";
-                     echo"</div>";        for ($i = 1; $i <=$count; $i++) {
+                     echo"</div>";  
+                           for ($i = 1; $i <=$count; $i++) {
             
             $question_text = $questions[$i];
          //   	SurveyID	id	surveyOptions	surveyQuestions	database columns
           // un comment to see what code will display  echo "Question #" . ($i) . ": " . $question_text . "<br>";
                $question_op = "NULL";
-                $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op')";
+                $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`,`questionNumber`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
                 mysqli_query($con,$query2); // inserts questions and answer choices 
-                
+                $questionNumber++;
             }
         
         }
@@ -315,28 +320,3 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 </html>
 
 
-<!--<label for="question1">Question 1:</label>
-        <input type="text" id="question1" name="questions[]"><br>
-        <input type="radio" name="q1" value="Option 1">Option 1<br>
-        <input type="radio" name="q1" value="Option 2">Option 2<br>
-        <input type="radio" name="q1" value="Option 3">Option 3<br>
-        <input type="radio" name="q1" value="Option 4">Option 4<br><br>
-
-        <label for="question2">Question 2:</label>
-        <input type="text" id="question2" name="questions[]"><br>
-        <input type="checkbox" name="q2[]" value="Option 1">Option 1<br>
-        <input type="checkbox" name="q2[]" value="Option 2">Option 2<br>
-        <input type="checkbox" name="q2[]" value="Option 3">Option 3<br>
-        <input type="checkbox" name="q2[]" value="Option 4">Option 4<br><br>
-
-        <label for="question3">Question 3:</label>
-        <input type="text" id="question3" name="questions[]"><br>
-        <select name="q3">
-            <option value="Option 1">Option 1</option>
-            <option value="Option 2">Option 2</option>
-            <option value="Option 3">Option 3</option>
-            <option value="Option 4">Option 4</option>
-        </select><br><br>
-
-        <input type="submit" value="Create Survey">
-    -->
