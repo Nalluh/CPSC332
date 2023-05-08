@@ -13,6 +13,9 @@ $surveyid = random_num(3);
 $insertQuestionFlag = false;
 $QuestionTemplate;
 $questionNumber =1;
+if(!$user_data = check_login($con)){
+    $user_data['id'] = 0;
+}
 echo "<div class='header'>";
 echo "<ul>";
 if(!empty($user_data["FName"])){
@@ -127,7 +130,8 @@ if($user_info['questionType'] == 'mAnswers'){
         echo "D  ";
         echo "   <input type='text' name='options[$j][]'    ><br>";
     }
-    
+    echo "Enter Survey Description <br>";
+    echo "<textarea id='essaybox' autofocus='autofocus' name='description''></textarea><br>";
         echo "<br><button> Submit </button>";
 
 echo "</form>";
@@ -160,7 +164,8 @@ if($user_info['questionType'] == 'mChoice'){
             echo "D  ";
             echo "   <input type='text' name='options[$j][]'    ><br>";
         }
-        
+        echo "Enter Survey Description <br>";
+    echo "<textarea id='essaybox' autofocus='autofocus' name='description''></textarea><br>";
         echo "<br><button> Submit </button>";
 
    echo "</form>";
@@ -186,7 +191,8 @@ if($user_info['questionType']== 'YesorNo'){
        
        
     }
-    
+    echo "Enter Survey Description <br>";
+    echo "<textarea id='essaybox' autofocus='autofocus' name='description''></textarea><br>";
     echo "<br><button> Submit </button>";
 
 echo "</form>";
@@ -210,7 +216,8 @@ if($user_info['questionType']== 'Essay'){
         echo " <input type='text' id='input[$j]' name='SurveyQuestions[$j]'><br>";
        
     }
-    
+    echo "Enter Survey Description <br>";
+    echo "<textarea id='essaybox' autofocus='autofocus' name='description''></textarea><br>";
     echo "<br><button> Submit </button>";
 
 echo "</form>";
@@ -227,9 +234,13 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         // if empty means form hasnt apperead so they are undefined do nothing
 
     }
+   
     else if($user_info['questionType'] == 'mChoice' or $user_info['questionType'] == 'mAnswers'){
     $questions = $_POST['SurveyQuestions']; 
     $options = $_POST['options']; 
+    $desc = $_POST['description'];
+    $query = "update questions set description = '$desc' where questionID = '{$user_info['questionID']}' ";
+    mysqli_query($con, $query);
     $count = (int)$user_info['QuestionAmount']; // index for displaying questions 
     $query ="Select * from survey where id = {$user_data['id']} order by questionID desc";
                 $result = mysqli_query($con,$query); //get surveyID
@@ -249,7 +260,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         foreach ($question_options as $option_text) {
         //    echo "- " . $option_text . "<br>";
             $question_op = $option_text;
-            $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`, `questionNumber`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
+            $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`, `questionNumber` ) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
             mysqli_query($con,$query2); // inserts questions and answer choices 
             
         }
@@ -259,6 +270,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     else if($user_info['questionType'] == 'YesorNo'){
         $questions = $_POST['SurveyQuestions']; 
         $options = $_POST['options']; 
+        $desc = $_POST['description'];
+        $query = "update questions set description = '$desc' where questionID = '{$user_info['questionID']}' ";
+        mysqli_query($con, $query);
         $count = (int)$user_info['QuestionAmount']; // index for displaying questions 
         $query ="Select * from survey where id = {$user_data['id']} order by questionID desc";
                     $result = mysqli_query($con,$query); //get surveyID
@@ -277,7 +291,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             foreach ($question_options as $option_text) {
               // un comment to see what code will display  echo "- " . $option_text . "<br>";
                 $question_op = $option_text;
-                $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`,`questionNumber`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
+                
+                $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`, `questionNumber`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
                 mysqli_query($con,$query2); // inserts questions and answer choices 
                 
             }
@@ -286,6 +301,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     }
     else if($user_info['questionType'] == 'Essay'){
         $questions = $_POST['SurveyQuestions']; 
+        $desc = $_POST['description'];
+        $query = "update questions set description = '$desc' where questionID = '{$user_info['questionID']}' ";
+        mysqli_query($con, $query);
         $count = (int)$user_info['QuestionAmount']; // index for displaying questions 
         $query ="Select * from survey where id = {$user_data['id']} order by questionID desc";
                     $result = mysqli_query($con,$query); //get surveyID
@@ -299,14 +317,15 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
          //   	SurveyID	id	surveyOptions	surveyQuestions	database columns
           // un comment to see what code will display  echo "Question #" . ($i) . ": " . $question_text . "<br>";
                $question_op = "NULL";
-                $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`,`questionNumber`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
-                mysqli_query($con,$query2); // inserts questions and answer choices 
+               $query2 = "INSERT INTO surveyQnR (`SurveyID`, `id`,`surveyQuestions`, `surveyOptions`, `questionNumber`) VALUES ('{$user_info['SurveyID']}', '{$user_data['id']}', '$questions[$i]','$question_op','$questionNumber')";
+               mysqli_query($con,$query2); // inserts questions and answer choices 
                 $questionNumber++;
             }
         
         }
 
 }
+
 }
     
                

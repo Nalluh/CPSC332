@@ -25,6 +25,10 @@ $yesnoCounter = 2;
 $submitCounter =2;
 $ansCounter=1;
 $num =1;
+$c =1;
+if(!$user_data = check_login($con)){
+    $user_data['id'] = 0;
+}
 echo "<div class='header'>";
 echo "<ul>";
 if(!empty($user_data["FName"])){
@@ -69,11 +73,13 @@ $result = mysqli_query($con,$query);                                            
         $question_info= mysqli_fetch_assoc($result);
 
 if($question_info['questionType'] == "mAnswers"){
-    $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}'";
+    $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}' ORDER BY questionNumber ASC";
     $result = mysqli_query($con,$query); //get survey question and answers
     $qamount = mysqli_num_rows($result);
     $qID = $survey_info['questionID'];
     echo "<h1>".$survey_info['surveyName']  ."</h1>";
+    echo "Survey Description: ".$question_info['description']."<br><br>";
+
     echo "<form method='post'  action=''>";
     echo  "<input type='hidden' name='questionid' value='$qID'>"; // allows me to use to find questiontype
     echo  "<input type='hidden' name='numofquestion' value='$qamount'>"; // allows me to use #ofquestions in post
@@ -96,11 +102,13 @@ if($question_info['questionType'] == "mAnswers"){
 
 
 if($question_info['questionType'] == "mChoice"){
-    $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}'";
+    $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}' ORDER BY questionNumber ASC";
     $result = mysqli_query($con,$query); //get survey question and answers
     $qamount = mysqli_num_rows($result);
     $qID = $survey_info['questionID'];
     echo "<h1>".$survey_info['surveyName']  ."</h1>";
+    echo "Survey Description: ".$question_info['description']."<br><br>";
+
     echo "<form method='post'  action=''>";
     echo  "<input type='hidden' name='questionid' value='$qID'>"; // allows me to use #ofquestions in post
     echo  "<input type='hidden' name='numofquestion' value='$qamount'>"; // allows me to use #ofquestions in post
@@ -120,11 +128,15 @@ if($question_info['questionType'] == "mChoice"){
 
 
 if($question_info['questionType'] == "YesorNo"){
-    $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}'";
-    $result = mysqli_query($con,$query); //get survey question and answers
+    // this one is commented out because i am testing out question swap
+   // $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}'
+   $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}' ORDER BY questionNumber ASC";
+   $result = mysqli_query($con,$query); //get survey question and answers
     $qamount = mysqli_num_rows($result);
     $qID = $survey_info['questionID'];
     echo "<h1>".$survey_info['surveyName']  ."</h1>";
+    echo "Survey Description: ".$question_info['description']."<br><br>";
+
     echo "<form method='post'  action=''>";
     echo  "<input type='hidden' name='questionid' value='$qID'>"; // allows me to use #ofquestions in post
     echo  "<input type='hidden' name='numofquestion' value='$qamount'>"; // allows me to use #ofquestions in post
@@ -151,11 +163,13 @@ if($question_info['questionType'] == "YesorNo"){
 
 
 if($question_info['questionType'] == "Essay"){
-    $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}'";
+    $query ="select * from surveyQnR where SurveyID ='{$survey_info['SurveyID']}' ORDER BY questionNumber ASC";
     $result = mysqli_query($con,$query); //get survey question and answers
     $qamount = mysqli_num_rows($result);
     $qID = $survey_info['questionID'];
     echo "<h1>".$survey_info['surveyName']  ."</h1>";
+    echo "Survey Description: ".$question_info['description']."<br><br>";
+
     $questionNum =1;
     echo "<form method='post' action=''>";
     echo  "<input type='hidden' name='questionid' value='$qID'>"; // allows me to use #ofquestions in post
@@ -202,10 +216,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_POST['e'.$i] = NULL; //empty entry give it null
             }
             else{
-                echo  $num.$_POST['e'.$i];
+               
                 $input = $_POST['e'.$i];
                 $query = "INSERT INTO Responses (`questionNumber`, `answer`, `id`, `surveyID`, `RID`) VALUES ('$num', '$input', '{$user_data['id']}', '{$surveyID2['surveyID']}', '$rid')";
-                mysqli_query($con,$query);
+                if(mysqli_query($con,$query) and $c ==1)
+                {
+                    echo "Survey submitted!";
+                    $c++;
+                }
                 $num++;
             }
         }
@@ -218,7 +236,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             else{
                 $input = $_POST['p'.$i];
                 $query = "INSERT INTO Responses (`questionNumber`, `answer`, `id`, `surveyID`, `RID`) VALUES ('$num', '$input', '{$user_data['id']}', '{$surveyID2['surveyID']}', '$rid')";
-                mysqli_query($con,$query);
+                if(mysqli_query($con,$query) and $c ==1)
+                {
+                    echo "Survey submitted!";
+                    $c++;
+                }
             }
             if($i % 4 == 0){ // keep track of what question number belongs to answer
                 $num++;
@@ -239,7 +261,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             else{ //not empty add to db
                $input = $_POST['p'.$i];
                 $query = "INSERT INTO Responses (`questionNumber`, `answer`, `id`, `surveyID`, `RID`) VALUES ('$num', '$input', '{$user_data['id']}', '{$surveyID2['surveyID']}', '$rid')";
-                mysqli_query($con,$query);
+                if(mysqli_query($con,$query) and $c ==1)
+                {
+                    echo "Survey submitted!";
+                    $c++;
+                }
 
             }
             if($i % 4 == 0){ // keep track of what question number belongs to answer
@@ -279,9 +305,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     foreach($question as $input)
     {
-        echo $num."<br>";
+       
             $query = "INSERT INTO Responses (`questionNumber`, `answer`, `id`, `surveyID`, `RID`) VALUES ('$num', '$input', '{$user_data['id']}', '{$surveyID2['surveyID']}', '$rid')";
-            mysqli_query($con,$query);
+            if(mysqli_query($con,$query) and $c ==1)
+                {
+                    echo "Survey submitted!";
+                    $c++;
+                }
              
             $num++;
     }

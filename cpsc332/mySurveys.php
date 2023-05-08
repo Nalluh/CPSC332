@@ -13,6 +13,7 @@ $surveyid = random_num(3);
 $insertQuestionFlag = false;
 $counter =0;
 $sID;
+$lol =0;
 
 echo "<div class='header'>";
 echo "<ul>";
@@ -81,6 +82,7 @@ echo "</div>"; // mySurveysName
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    
     if(empty($_POST['editTextBox']))    {
     $_POST['editTextBox'] = NULL;
     if(empty($_POST['delete'])){
@@ -89,19 +91,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if(empty($_POST['close'])){
         $_POST['close'] = NULL; // assign a value or it will give error
     }
+    if(empty($_POST['questions'])){
+        $_POST['questions'] = NULL; // assign a value or it will give error
+    }
+    if(empty($_POST['responses'])){
+        $_POST['responses'] = NULL; // assign a value or it will give error
+    }
+    if( empty($_POST['input1']) and  empty($_POST['input2'])and empty($_POST['input3'])){
+        $_POST['input1'] = NULL;
+        $_POST['input2'] = NULL;
+        $_POST['input3'] = NULL;
+
+
+    }
     echo "<div class='editS'>";
     if($_POST['delete'] == "on"){ // delete survey 
     $query = "update survey set id = null,   status = 'Closed'  where surveyID = '{$_POST['survey']}' ";
     mysqli_query($con,$query);
+    
         
     }
     if($_POST['close'] == "on"){ // close active survey
         $query = "update survey set status = 'Closed' where surveyID = '{$_POST['survey']}' ";
         mysqli_query($con,$query);
+       
      
     }
-    if(empty($_POST['responses'])){
-        $_POST['responses'] = NULL; // assign a value or it will give error
+    if($_POST['questions'] == "on"){ 
+       $lol =1;
+        echo "<form method = 'post' action =''>";
+        echo "swap which two questions?<br>";
+        echo "<input type='hidden' name='input3' value ='{$_POST['survey']}' /> <br>";
+       echo "<input type='text' name='input1' /> <br>";
+       echo "<input type='text' name='input2' /> <br>";
+        echo "<button> submit </button>";
+        echo "</form>";
+
     }
     //if user wants to look at all responses
     if($_POST['responses'] == "on"){
@@ -117,7 +142,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
      echo "<a href =$url >Click here to view them</a>";
 
     }
+    // this swap question numbers but does not swap actual question
+    // so when you display it on page it loads it by entry 
 
+    $query4 = "UPDATE surveyqnr SET questionNumber = CASE WHEN questionNumber =  '{$_POST['input1']}' THEN '{$_POST['input2']}' WHEN questionNumber = '{$_POST['input2']}' THEN '{$_POST['input1']}' ELSE questionNumber END WHERE SurveyID = '{$_POST['input3']}'";
+    mysqli_query($con, $query4);
+    
+       
+        
+    
+    
     echo "</div>";
     //header('Location: mySurveys.php');
    // exit();  
@@ -132,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         echo "<form method ='post' action =''>";
         echo "<input type='radio' name='responses' >View survey responses<br>";
+        echo "<input type='radio' name='questions' >Edit question order<br>";
         echo "<input type='radio' name='close' >Close Survey<br>";
         echo "<input type='radio' name='delete' >Delete Survey<br>";
        echo  "<input type='hidden' name='survey' value='$sID'>";
